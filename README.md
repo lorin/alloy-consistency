@@ -24,7 +24,7 @@ binaries relations, along with their algebraic definitions. Translating from the
 |------------|----------------------------------------------|-----------------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
-|irreflexive |id<sub>A</sub> ∩ rel= ∅                       |`no (iden & A->A & rel`            |
+|irreflexive |id<sub>A</sub> ∩ rel= ∅                       |`no (iden & A->A & rel)`           |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
 |acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & A->A & ^rel)`          |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
@@ -65,6 +65,8 @@ sig Value extends ReturnValue {}
 
 one sig Undef extends ReturnValue {}
 
+one sig OK extends ReturnValue {}
+
 abstract sig Operation {}
 
 sig Read extends Operation {}
@@ -77,11 +79,13 @@ sig Event {
     op: Operation,
     rval: ReturnValue,
     rb: set Event,
+	ss: set Event,
     vis: set Event,
     ar: set Event
 }
+```
 
-
+```alloy
 // Definition 3.1 on page 32
 // (h3) rb is a natural partial order on E, the returns-before order.<Paste>
 // Partial orders are irreflexive and transitive (Section 2.1.3, p21)
@@ -109,13 +113,53 @@ ss=~ss
 }
 
 
+// Definition 3.3, page 35
+// (a2) vis is an acyclic and natural relation.
+fact VisibilityIsAcyclic {
+no (iden & Event->Event & ^vis)
+}
+
+// Definition 3.3, page 35
+// (a3) ar is a total order.
+// total order is partial order and total
+// partial order is irreflexive and transitive
+// order defintion is in section 2.1.3
+fact ArbitrationIsTotalOrder {
+// irreflexive
+no (iden & Event->Event & ar)
+
+// transitive
+ar.ar in ar
+
+// total
+ar + ~ar + (iden & Event->Event) = Event->Event	
+}
+```
+
+Now let's put some constraints on it
+
+```alloy
+fact AllOpsAreAssociatedWithEvents {
+all o : Operation | some op.o
+}
+
+
+fact WritesReturnOK {
+all e : Event | e.op in Write => e.rval = OK
+}
+
+fact ReadsReturnValuesOrUndef {
+all e : Event | e.op in Read => e.rval in (Value + Undef)
+}
 
 ```
+
 
 Let's see an example:
 
 ```alloy
-run {#vis > 0}
+// run {some vis and some Write and some Read}
+run {} for 4 but 5 Event
 ```
 
 
