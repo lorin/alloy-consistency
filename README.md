@@ -14,14 +14,14 @@ As an example, from page 22 of Burckhardt, Burckhardt lists some properties of
 binaries relations, along with algebraic definitions. These translate easily into Alloy.
 
 
-|Property    |Algebraic definition                 |Alloy syntax                       |
-|------------|-------------------------------------|-----------------------------------|
-|symmetric   |rel=rel<sup>-1</sup>                 |`rel=~rel`                         |
-|reflexive   |id<sub>A</sub> ⊆ rel                 |`(iden & A->A) in rel`             |
-|irreflexive | |`no (iden & A->A)`                 |
-|transitive  | |`rel.rel in rel`                   |
-|acyclic     | |`no (iden & A->A & ^rel)`          |
-|total       | |`rel + ~rel + (iden & A->A) = A->A`|
+|Property    |Algebraic definition                          |Alloy syntax                       |
+|------------|----------------------------------------------|-----------------------------------|
+|symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
+|reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
+|irreflexive |id<sub>A</sub> ∩ rel= ∅                       |`no (iden & A->A)`                 |
+|transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
+|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & A->A & ^rel)`          |
+|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
 
 
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
