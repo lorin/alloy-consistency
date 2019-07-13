@@ -195,28 +195,14 @@ read always corresponds to the last visible write in arbitration order, or
 
 ```alloy
 fact ReadLastVisibleWrite {
-	all r : reads[] | 
-		let lvw = lastVisibleWrite[r] | 
-		some lvw => r.rval=lvw.op.value else r.rval=Undef
+	all r : op.Read | 
+		some (op.Write & ar.r) => r.rval=lastVisibleWrite[r].op.value else r.rval=Undef
 }
-
-//
-// convenience functions
-//
 
 fun lastVisibleWrite(e: E): lone E {
-	{w : writes[] | w->e in ar and no ww : writes | w->ww in ar and ww->e in ar}
-}
-
-fun reads(): set E {
-	{w : E | w.op in Read}
-}
-
-fun writes(): set E {
-	{w : E | w.op in Write}
+	{w : op.Write | w->e in ar and no ww : op.Write | w->ww in ar and ww->e in ar}
 }
 ```
-
 
 ## Other constraints
 
@@ -232,10 +218,16 @@ all o : Operation | some op.o
 
 ## Running the model
 
+We can use Alloy to generate an instance of an abstract execution that meets these constraints:
 
+I ran it with these settings:
 
 ```alloy
-run {some Read and some Write and some vis}
+run {#Read>1 and #Write>1 and some vis} for 4
 ```
 
+Here's what it generated:
 
+![instance](instance.png)
+
+I played with Alloy's theme settings so that the *op*, *rval*, and *ss* fields are shown as attributes.
