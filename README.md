@@ -11,13 +11,13 @@ language](http://alloytools.org/), which is also based on sets, relations, and
 first order logic.
 
 As an example, from page 22 of Burckhardt, Burckhardt lists some properties of
-binaries relations, along with element-wise and algebraic definitions. These
-are very easy to translate from the algebraic definition to Alloy
+binaries relations, along with algebraic definitions. These translate easily into Alloy.
 
-|Property    |Algebraic definition                |Alloy syntax                       |
-|------------|------------------------------------|-----------------------------------|
-|symmetric   |rel=rel<sup>-1</sup>                |`rel=~rel`                         |
-|reflexive   | |`(iden & A->A) in rel`             |
+
+|Property    |Algebraic definition                 |Alloy syntax                       |
+|------------|-------------------------------------|-----------------------------------|
+|symmetric   |rel=rel<sup>-1</sup>                 |`rel=~rel`                         |
+|reflexive   |id<sub>A</sub> ⊆ rel                 |`(iden & A->A) in rel`             |
 |irreflexive | |`no (iden & A->A)`                 |
 |transitive  | |`rel.rel in rel`                   |
 |acyclic     | |`no (iden & A->A & ^rel)`          |
