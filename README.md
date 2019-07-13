@@ -2,7 +2,7 @@
 title: Eventual consistency and Alloy
 ---
 
-In the (free!) book [Principles of Eventual Consistency][PoEC], Sebastian
+In the (free!) book [Principles of Eventual Consistency][PoEC] (PoEC), Sebastian
 Burckhardt introduces techniques for reasoning about eventually consistent data
 types. His approach uses sets, relations, and first order logic.
 
@@ -10,8 +10,8 @@ This sounds like a good fit for the [Alloy modeling
 language](http://alloytools.org/), which is also based on sets, relations, and
 first order logic.
 
-As an example, from page 22 of Burckhardt, Burckhardt lists some properties of
-binaries relations, along with algebraic definitions. These translate easily into Alloy.
+As an example, from page 22 of PoEC, Burckhardt lists some properties of
+binaries relations, along with algebraic definitions. It's straightforward to translate these into Alloy syntax.
 
 
 |Property    |Algebraic definition                          |Alloy syntax                       |
