@@ -2,7 +2,7 @@
 title: Eventual consistency and Alloy
 ---
 
-In the (free!) book [Principles of Eventual Consistency][PoEC] (PoEC), Sebastian
+In [Principles of Eventual Consistency][PoEC] (PoEC), Sebastian
 Burckhardt introduces techniques for reasoning about eventually consistent data
 types. His approach uses sets, relations, and first order logic.
 
