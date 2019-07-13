@@ -24,7 +24,7 @@ binaries relations, along with their algebraic definitions. Translating from the
 |------------|----------------------------------------------|-----------------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
-|irreflexive |id<sub>A</sub> ∩ rel= ∅                       |`no (iden & A->A)`                 |
+|irreflexive |id<sub>A</sub> ∩ rel= ∅                       |`no (iden & A->A & rel`            |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
 |acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & A->A & ^rel)`          |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
@@ -59,7 +59,11 @@ An abstract execution is made up of:
 
 
 ```alloy
-sig Value {}
+abstract sig ReturnValue  {}
+
+sig Value extends ReturnValue {}
+
+one sig Undef extends ReturnValue {}
 
 abstract sig Operation {}
 
@@ -71,11 +75,41 @@ sig Write extends Operation {
 
 sig Event {
     op: Operation,
-    rval: Value,
+    rval: ReturnValue,
     rb: set Event,
     vis: set Event,
     ar: set Event
 }
+
+
+// Definition 3.1 on page 32
+// (h3) rb is a natural partial order on E, the returns-before order.<Paste>
+// Partial orders are irreflexive and transitive (Section 2.1.3, p21)
+fact ReturnsBeforeIsNaturalPartialOrder {
+
+// irreflexive
+no (iden & Event->Event & rb)
+
+// transitive
+rb.rb in rb
+}
+
+// Definition 3.1 on page 32
+// (h4) ss is an equivalence relation on E, the same-session relation.
+// Equivalence relations are reflexive, transitive, and symmetric (Section 2.1.3, p22)
+fact SameSessionIsAnEquivalenceRelation {
+// reflexive
+(iden & Event->Event) in ss
+
+// transitive
+ss.ss in ss
+
+// symmetric
+ss=~ss
+}
+
+
+
 ```
 
 Let's see an example:
