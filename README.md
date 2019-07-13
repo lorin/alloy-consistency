@@ -59,6 +59,7 @@ An abstract execution is made up of:
 
 
 ```alloy
+
 abstract sig ReturnValue  {}
 
 sig Value extends ReturnValue {}
@@ -77,7 +78,7 @@ sig Write extends Operation {
 
 sig Event {
     op: Operation,
-    rval: ReturnValue,
+    rval: Value + Undef + OK,
     rb: set Event,
 	ss: set Event,
     vis: set Event,
