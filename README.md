@@ -142,53 +142,52 @@ sig Write extends Operation {
 
 There are a number of constraints we need to enforce on some of the relations. In particular:
 
-* *rb* is a partial order on *E*, the returns-before order. (Definition 3.1, p32)
-* *ss* is an equivalence relation on *E*, the same-session relation.  (Definition 3.1, p32)
-* *vis* is an acyclic relation. (Definition 3.3, p35)
-* *ar* is a total order (Definition 3.3, p35)
-
+* *rb* (returns-before) is a partial order on *E* (Definition 3.1, p32).
+* *ss* (same-session) is an equivalence relation on *E* (Definition 3.1, p32).
+* *vis* (visibility) is an acyclic relation (Definition 3.3, p35).
+* *ar* (arbitration) is a total order (Definition 3.3, p35).
 
 ```alloy
 fact ReturnsBeforeIsPartialOrder {
-// Partial orders are irreflexive and transitive (Section 2.1.3, p21)
+    // Partial orders are irreflexive and transitive (Section 2.1.3, p21)
 
-// irreflexive
-no (iden & E->E & rb)
+    // irreflexive
+    no (iden & E->E & rb)
 
-// transitive
-rb.rb in rb
+    // transitive
+    rb.rb in rb
 }
 
 fact SameSessionIsAnEquivalenceRelation {
-// Equivalence relations are reflexive, transitive, and symmetric (Section 2.1.3, p22)
+    // Equivalence relations are reflexive, transitive, and symmetric (Section 2.1.3, p22)
 
-// reflexive
-(iden & E->E) in ss
+    // reflexive
+    (iden & E->E) in ss
 
-// transitive
-ss.ss in ss
+    // transitive
+    ss.ss in ss
 
-// symmetric
-ss=~ss
+    // symmetric
+    ss=~ss
 }
 
 fact VisibilityIsAcyclic {
-no (iden & E->E & ^vis)
+    no (iden & E->E & ^vis)
 }
 
 fact ArbitrationIsTotalOrder {
-// total order is partial order and total
-// partial order is irreflexive and transitive
-// order defintion is in section 2.1.3
+    // total order is partial order and total
+    // partial order is irreflexive and transitive
+    // order defintion is in section 2.1.3
 
-// irreflexive
-no (iden & E->E & ar)
+    // irreflexive
+    no (iden & E->E & ar)
 
-// transitive
-ar.ar in ar
+    // transitive
+    ar.ar in ar
 
-// total
-ar + ~ar + (iden & E->E) = E->E
+    // total
+    ar + ~ar + (iden & E->E) = E->E
 }
 ```
 
@@ -202,11 +201,11 @@ We need to constrain the return values so they match the operations.
 
 ```alloy
 fact WritesReturnOK {
-all e : E | e.op in Write => e.rval = OK
+    all e : E | e.op in Write => e.rval = OK
 }
 
 fact ReadsReturnValuesOrUndef {
-all e : E | e.op in Read => e.rval in (Value + Undef)
+    all e : E | e.op in Read => e.rval in (Value + Undef)
 }
 ```
 
