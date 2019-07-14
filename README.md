@@ -48,7 +48,7 @@ register. A register is a very simple data structure that holds a single value.
 
 A register supports two operations: *read a value* and *write a value*.
 
-## Abstract executions
+# Abstract executions
 
 We'll use alloy to generate an *abstract execution* for a register. PoEC defines abstract executions
 in section 3.2 (p34).
@@ -69,7 +69,7 @@ The convention we'll use for return values is:
 * For reads, the return value is either a legitimate value, or `Undef` if the register has never had a value written before:
 * If an operation does not complete, the return value is `NeverReturns`.
 
-# Allow model
+# Modeling abstract executions in Alloy
 
 In our alloy model, we'll define an *E* signature, and *op,rval,rb,ss,vis,ar* fields to model the relations.
 
