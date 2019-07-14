@@ -89,7 +89,7 @@ sig E {
 }
 ```
 
-Note how the "op" and "rval" relations map an event to an individual element of a set, and the other relations map an event to a set of events.
+Note how the *op* and *rval* relations map an event to an individual element of a set, and the other relations map an event to a set of events.
 
 Next, we need to define *Operation, Value, Undef, OK*.
 
