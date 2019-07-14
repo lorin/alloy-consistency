@@ -216,11 +216,11 @@ read always corresponds to the last visible write in arbitration order, or
 ```alloy
 fact ReadLastVisibleWrite {
     all r : op.Read | 
-        some (op.Write & ar.r) => r.rval=lastVisibleWrite[r].op.value else r.rval=Undef
+        some (op.Write & vis.r) => r.rval=lastVisibleWrite[r].op.value else r.rval=Undef
 }
 
 fun lastVisibleWrite(e: E): lone E {
-    {w : op.Write | w->e in ar and no ww : op.Write | w->ww in ar and ww->e in ar}
+    {w : op.Write | w->e in vis and no ww : op.Write | ww->e in vis and w->ww in ar}
 }
 ```
 
