@@ -12,7 +12,7 @@ This sounds like a good fit for the [Alloy modeling
 language](http://alloytools.org/), which is also based on sets, relations, and
 first order logic.
 
-Note: PoEC is written as a book in PDF format. It is free to download.
+Note that this file is written in Alloy Markdow format, so you can load it directly into [Alloy 5.0](https://github.com/AlloyTools/org.alloytools.alloy/releases).
 
 # Using Alloy to model relations
 
@@ -73,7 +73,7 @@ consistent with Burckhardt's syntax, and because it will make things a little sh
 ```alloy
 sig E {
     op: Operation,
-    rval: Value + Undef + OK,
+    rval: Value + NeverReturns,
     rb: set E,
     ss: set E,
     vis: set E,
@@ -93,12 +93,25 @@ Next, we need to define *Operation, Value, Undef, OK*.
 sig Value {}
 ```
 
-*Undef* and *OK* are special values, we model those as singleton sets:
+We're going to define *V* as the values that can be written to the register.
 
 ```alloy
-one sig Undef {}
+sig V extends Value {}
+```
 
-one sig OK {}
+We'll also define *Undef* and *OK* are special values, we model those as singleton sets
+
+
+```alloy
+one sig Undef extends Value {}
+
+one sig OK extends Value {}
+```
+
+Finally, we need to model with Burckhardt refers to as ∇, a special value that represents "NeverReturns".
+
+```alloy
+one sig NeverReturns {}
 ```
 
 ## Operations
@@ -113,7 +126,7 @@ abstract sig Operation {}
 sig Read extends Operation {}
 
 sig Write extends Operation {
-	value: Value
+	value: V
 }
 ```
 
@@ -223,7 +236,7 @@ We can use Alloy to generate an instance of an abstract execution that meets the
 I ran it with these settings:
 
 ```alloy
-run {#Read>1 and #Write>1 and some vis} for 4
+// run {#Read>1 and #Write>1 and some vis} for 4
 ```
 
 Here's what it generated:
@@ -231,3 +244,75 @@ Here's what it generated:
 ![instance](instance.png)
 
 I played with Alloy's theme settings so that the *op*, *rval*, and *ss* fields are shown as attributes.
+
+# Ordering guarantees
+
+Chapter 5 of PoEC expresses ordering guarantees as predicates on abstract executions. Here's a few of them:
+
+```alloy
+assert ReadMyWrites {
+    so[] in vis
+}
+
+assert MonoticReads {
+    vis.so[] in vis
+}
+
+assert ConsistentPrefix {
+    ar.(vis-ss) in vis
+}
+
+assert NoCircularCausality {
+    let so = rb & ss | 
+    let hb = ^(so + vis) |
+     no (iden & E->E & ^hb)   
+}
+
+assert CausalVisibility {
+    hb[] in vis
+}
+
+assert CausalArbitration {
+    hb[] in ar
+}
+
+assert RealTime {
+    rb in ar
+}
+
+//
+// convenience functions
+//
+
+// session order
+fun so[]: E->E {
+    rb & ss
+}
+
+// happens before
+fun hb[]: E->E {
+    ^(so[] + vis)
+}
+```
+
+Unfortuantely, we can't check the *single order* guarantee with Alloy because that guarantee is
+expressed in higher-order logic, and Alloy only supports expressions in first-order logic.
+
+## Checking for violations
+
+We can use Alloy to check if these are violated:
+
+```alloy
+check NoCircularCausality
+```
+
+And, indeed, we get a counterexample:
+
+![circular causality](circular-causality.png).
+
+The problem is:
+* (E1,E0) is in *rb*, which means that E1 returned before E0
+* (E0,E1) is in *vis*, which means that E0 is visible to E1
+
+This violates are intuitive notions of how causality works. 
+
