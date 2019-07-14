@@ -17,7 +17,7 @@ language](http://alloytools.org/), which is designed for modeling using sets,
 relations, and first order logic. This doc is me just playing with some of the
 concepts in PoEC with Alloy.
 
-Note that this file is written in Alloy Markdown format, so you can load it directly into [Alloy 5.0](https://github.com/AlloyTools/org.alloytools.alloy/releases).
+Note that this file is written in [Alloy Markdown format](https://github.com/AlloyTools/org.alloytools.alloy/wiki/5.0.0-Change-List#markdown-syntax), so you can load it directly into [Alloy 5.0](https://github.com/AlloyTools/org.alloytools.alloy/releases).
 
 [TLA+]: http://lamport.azurewebsites.net/tla/tla.html
 
