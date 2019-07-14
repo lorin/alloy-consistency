@@ -201,11 +201,11 @@ We need to constrain the return values so they match the operations.
 
 ```alloy
 fact WritesReturnOK {
-    all e : E | e.op in Write => e.rval = OK
+    all w : op.Write | w.rval = OK
 }
 
 fact ReadsReturnValuesOrUndef {
-    all e : E | e.op in Read => e.rval in (Value + Undef)
+    all r : op.Read | r.rval in (Value + Undef)
 }
 ```
 
@@ -232,7 +232,7 @@ specify that all operations have to be associated with an event.
 
 ```alloy
 fact AllOpsAreAssociatedWithEvents {
-all o : Operation | some op.o
+    all o : Operation | some op.o
 }
 ```
 
