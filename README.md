@@ -243,6 +243,7 @@ We can use Alloy to generate an instance of an abstract execution that meets the
 I ran it with these settings:
 
 ```alloy
+// Uncomment below to run it
 // run {#Read>1 and #Write>1 and some vis} for 4
 ```
 
@@ -322,4 +323,3 @@ The problem is:
 * (E0,E1) is in *vis*, which means that E0 is visible to E1
 
 This violates are intuitive notions of how causality works. 
-
