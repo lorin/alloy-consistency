@@ -17,14 +17,14 @@ Note that this file is written in Alloy Markdow format, so you can load it direc
 # Using Alloy to model relations
 
 Here's an example of how well suited Alloy is to Burckhardt's approach. On page 22 of PoEC, Burckhardt has a table properties of
-binaries relations, along with their algebraic definitions. Translating from the algebraic definitions to Alloy is straightforward.
+binaries relations, along with their algebraic definitions. Translating from the algebraic definitions to Alloy syntax is very straightforward.
 
 
 |Property    |Algebraic definition                          |Alloy syntax                       |
 |------------|----------------------------------------------|-----------------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
-|irreflexive |id<sub>A</sub> ∩ rel= ∅                       |`no (iden & A->A & rel)`           |
+|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no (iden & A->A & rel)`           |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
 |acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & A->A & ^rel)`          |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
