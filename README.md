@@ -6,13 +6,20 @@ title: Eventual consistency and Alloy
 
 In [Principles of Eventual Consistency][PoEC] (PoEC), Sebastian
 Burckhardt introduces an approach for reasoning about eventually consistent data
-types. His approach relies heavily on *event graphs*, which are defined using sets, relations, and first order logic.
+types. When it comes to modeling concurrent or distributed algorithms, I've
+historically looked to [TLA+], since it explicitly models time (the "T" is for temporal). 
+Interestingly, Burckhardt's approach doesn't model time explicitly. Instead,
+the approach uses *event graphs*, which are defined using sets, relations, and first order
+logic.
 
-This sounds like a good fit for the [Alloy modeling
-language](http://alloytools.org/), which is also based on sets, relations, and
-first order logic.
+This sounded like a good fit for the [Alloy modeling
+language](http://alloytools.org/), which is designed for modeling using sets,
+relations, and first order logic. This doc is me just playing with some of the
+concepts in PoEC with Alloy.
 
-Note that this file is written in Alloy Markdow format, so you can load it directly into [Alloy 5.0](https://github.com/AlloyTools/org.alloytools.alloy/releases).
+Note that this file is written in Alloy Markdown format, so you can load it directly into [Alloy 5.0](https://github.com/AlloyTools/org.alloytools.alloy/releases).
+
+[TLA+]: http://lamport.azurewebsites.net/tla/tla.html
 
 # Using Alloy to model relations
 
@@ -48,13 +55,13 @@ in section 3.2 (p34).
 
 An abstract execution is made up of:
 
-* E - set of events
-* op - relation that maps events to operations
-* rval - relation that maps events to values returned by the operation
-* rb - "returns before" relation that captures which operations returned before which other ones
-* ss - "same session" relation that captures which operations are part of the same "session" (you can think of as a thread or process)
-* vis - visibility relation
-* ar - arbitration relation
+* *E* - set of events
+* *op* - relation that maps events to operations
+* *rval* - relation that maps events to values returned by the operation
+* *rb* - "returns before" relation that captures which operations returned before which other ones
+* *ss* - "same session" relation that captures which operations are part of the same "session" (you can think of as a thread or process)
+* *vis* - visibility relation
+* *ar* - arbitration relation
 
 The convention we'll use for return values is:
 
