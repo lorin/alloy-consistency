@@ -308,7 +308,7 @@ expressed in higher-order logic, and Alloy only supports expressions in first-or
 
 ## Checking for violations
 
-We can use Alloy to check if these are violated:
+We can use Alloy to check if these properties can be violated given the constraints we've put on our model:
 
 ```alloy
 check NoCircularCausality
@@ -321,5 +321,3 @@ And, indeed, we get a counterexample:
 The problem is:
 * (E1,E0) is in *rb*, which means that E1 returned before E0
 * (E0,E1) is in *vis*, which means that E0 is visible to E1
-
-This violates are intuitive notions of how causality works. 
