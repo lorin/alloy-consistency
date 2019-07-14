@@ -59,7 +59,7 @@ An abstract execution is made up of:
 * *op* - relation that maps events to operations
 * *rval* - relation that maps events to values returned by the operation
 * *rb* - "returns before" relation that captures which operations returned before which other ones
-* *ss* - "same session" relation that captures which operations are part of the same "session" (you can think of as a thread or process)
+* *ss* - "same session" relation that captures which operations are part of the same session (you can think of it as a thread or process)
 * *vis* - visibility relation
 * *ar* - arbitration relation
 
@@ -67,13 +67,14 @@ The convention we'll use for return values is:
 
 * For writes, the return value is `OK`
 * For reads, the return value is either a legitimate value, or `Undef` if the register has never had a value written before:
+* If an operation does not complete, the return value is `NeverReturns`.
 
 # Allow model
 
-In our alloy model, we'll define an E *signature*, and op,rval,rb,ss,vis,ar fields to model the relations.
+In our alloy model, we'll define an *E* signature, and *op,rval,rb,ss,vis,ar* fields to model the relations.
 
 I'd normally call this "Event" instead of "E", but I'll use "E" here to be
-consistent with Burckhardt's syntax, and because it will make things a little shorter.
+consistent with Burckhardt's syntax. 
 
 ## Events
 
@@ -88,7 +89,7 @@ sig E {
 }
 ```
 
-Note how the "op" and "rval" relations map an event to an individual element, and the other relations map an event to a set of events.
+Note how the "op" and "rval" relations map an event to an individual element of a set, and the other relations map an event to a set of events.
 
 Next, we need to define *Operation, Value, Undef, OK*.
 
@@ -106,7 +107,7 @@ We're going to define *V* as the values that can be written to the register.
 sig V extends Value {}
 ```
 
-We'll also define *Undef* and *OK* are special values, we model those as singleton sets
+We'll also define *Undef* and *OK*, which we model as singleton sets:
 
 
 ```alloy
@@ -125,7 +126,7 @@ one sig NeverReturns {}
 
 To model operations, we need to model reads and writes. 
 
-Writes also have return values, so we need a field on the *Write* signature that associates a write with a value.
+Writes have an argument, so we need a field on the *Write* signature that associates a write with a value.
 
 ```alloy
 abstract sig Operation {}
@@ -133,7 +134,7 @@ abstract sig Operation {}
 sig Read extends Operation {}
 
 sig Write extends Operation {
-	value: V
+    value: V
 }
 ```
 
@@ -215,12 +216,12 @@ read always corresponds to the last visible write in arbitration order, or
 
 ```alloy
 fact ReadLastVisibleWrite {
-	all r : op.Read | 
-		some (op.Write & ar.r) => r.rval=lastVisibleWrite[r].op.value else r.rval=Undef
+    all r : op.Read | 
+        some (op.Write & ar.r) => r.rval=lastVisibleWrite[r].op.value else r.rval=Undef
 }
 
 fun lastVisibleWrite(e: E): lone E {
-	{w : op.Write | w->e in ar and no ww : op.Write | w->ww in ar and ww->e in ar}
+    {w : op.Write | w->e in ar and no ww : op.Write | w->ww in ar and ww->e in ar}
 }
 ```
 
