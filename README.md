@@ -33,7 +33,7 @@ binaries relations, along with their algebraic definitions. Translating from the
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
 |irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no iden & rel`                    |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
-|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & A->A & ^rel)`          |
+|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & ^rel)`                 |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
 
 
@@ -172,7 +172,7 @@ fact SameSessionIsAnEquivalenceRelation {
 }
 
 fact VisibilityIsAcyclic {
-    no (iden & E->E & ^vis)
+    no iden & ^vis
 }
 
 fact ArbitrationIsTotalOrder {
@@ -181,7 +181,7 @@ fact ArbitrationIsTotalOrder {
     // order defintion is in section 2.1.3
 
     // irreflexive
-    no (iden & E->E & ar)
+    no iden & & ar
 
     // transitive
     ar.ar in ar
