@@ -31,7 +31,7 @@ binaries relations, along with their algebraic definitions. Translating from the
 |------------|----------------------------------------------|-----------------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
-|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no (iden & A->A & rel)`           |
+|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no iden & rel`                    |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
 |acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & A->A & ^rel)`          |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
@@ -152,7 +152,7 @@ fact ReturnsBeforeIsPartialOrder {
     // Partial orders are irreflexive and transitive (Section 2.1.3, p21)
 
     // irreflexive
-    no (iden & E->E & rb)
+    no iden & rb
 
     // transitive
     rb.rb in rb
