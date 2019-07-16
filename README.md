@@ -30,11 +30,11 @@ binaries relations, along with their algebraic definitions. Translating from the
 |Property    |Algebraic definition                          |Alloy syntax                       |
 |------------|----------------------------------------------|-----------------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
-|reflexive   |id<sub>A</sub> ⊆ rel                          |`(iden & A->A) in rel`             |
+|reflexive   |id<sub>A</sub> ⊆ rel                          |`iden & A->A in rel`               |
 |irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no iden & rel`                    |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
-|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no (iden & ^rel)`                 |
-|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + (iden & A->A) = A->A`|
+|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no iden & ^rel`                   |
+|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`A->A in rel + ~rel + iden`        |
 
 
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
@@ -187,7 +187,7 @@ fact ArbitrationIsTotalOrder {
     ar.ar in ar
 
     // total
-    ar + ~ar + (iden & E->E) = E->E
+    E->E in ar + ~ar + iden
 }
 ```
 
