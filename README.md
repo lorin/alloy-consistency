@@ -329,7 +329,7 @@ pred areConcurrent[e1,e2 : E] {
 We can then check to see if the register is regular:
 
 ```alloy
-check IsRegularRegister
+// check IsRegularRegister
 ```
 
 It fails, with this counterexample:
@@ -369,6 +369,32 @@ Running it again, we get another counterexample:
 
 Now we have the opposite problem: E1 is a write, E1 returns before E0, and E0 doesn't read the write!
 
+We need to add a restriction that if a write happens before a read, it's visible:
+
+```alloy
+fact WritesThatReturnBeforeReadsAreVisible {
+    all r : op.Read | all w : op.Write | w->r in rb => w->r in vis
+}
+```
+
+And with that additional fact, Alloy doesn't find a counterexample.
+
+
+## Is it an atomic register?
+
+It's not exactly clear what "subsequent" means, so we'll assume it means "returns after"
+
+```alloy
+assert IsAtomicRegister {
+
+// If a read returns a value *v* and a subsequent read returns a value *w*, then the write of *w* does not precede the write of *v*.
+no w1,w2 : op.Write | 
+   some r1,r2 : op.Read | some v,w : Value |   
+    r1.rval=v and r2.rval=w and r1->r2 in rb and w1.op.value=v and w2.op.value=w and w2->w1 in rb
+}
+
+check IsAtomicRegister for 4
+```
 
 # Ordering guarantees
 
