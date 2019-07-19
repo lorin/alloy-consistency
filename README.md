@@ -306,6 +306,18 @@ fun hb[]: E->E {
 Unfortuantely, we can't check the *single order* guarantee with Alloy because that guarantee is
 expressed in higher-order logic, and Alloy only supports expressions in first-order logic.
 
+However, if we constrain things so that all operations complete, then we can define single order:
+
+```alloy
+fact AllOperationsComplete {
+    no E.rval & NeverReturns
+}
+
+assert SingleOrder {
+    vis = ar
+}
+```
+
 ## Checking for violations
 
 We can use Alloy to check if these properties can be violated given the constraints we've put on our model:
