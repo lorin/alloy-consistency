@@ -32,6 +32,8 @@ We'll start by defining a macro to represent id<sub>A</sub> in Alloy:
 let id[A] = A<:iden
 ```
 
+Here are the properties and their direct translation into alloy.
+
 |Property    |Algebraic definition                          |Alloy syntax                |
 |------------|----------------------------------------------|----------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                  |
@@ -39,7 +41,7 @@ let id[A] = A<:iden
 |irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no id[A] & rel`            |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`            |
 |acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no id[A] & ^rel`           |
-|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`A->A in rel + ~rel + id[A]`|
+|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + id[A] = A->A` |
 
 
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
