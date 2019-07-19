@@ -346,7 +346,7 @@ The problem is that our `IsRegularRegister` assertion doesn't take into account 
 We need to fix the lastValueWritten function:
 
 ```alloy
-fun lastValueWritten[e : E] : Value {
+fun lastValueWritten[e : E] : Value { // Still wrong! We'll fix this later
     let mostRecentWrite = {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)} |
         some mostRecentWrite=>mostRecentWrite.op.value else Undef
 }
@@ -422,6 +422,18 @@ fact NoConcurrencyInSameSession {
 
 Running it yields another counterexample:
 
+![multiple concurrent writes](multiple-concurrent-writes.png)
+
+
+The problem is that E0 and E1 are both concurrent writes for E2, and our `lastValueWritten` function assumed only one write would be concurrent.
+
+
+```alloy
+fun lastValueWritten[e : E] : Value { 
+    let mostRecentWrite = {w : op.Write | (w->e in rb) and (no w2 : op.Write | w->w2 in rb and (w2->e in rb or areConcurrent[e,w2]))} |
+        some mostRecentWrite=>mostRecentWrite.op.value else Undef
+}
+```
 
 
 ## Is it an atomic register?
