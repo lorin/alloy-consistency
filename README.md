@@ -334,7 +334,8 @@ assert IsRegularRegister {
 We can then check to see if the register is regular:
 
 ```alloy
-check IsRegularRegister for 4
+//check IsRegularRegister for 7
+run {some E} 
 ```
 
 It fails, with this counterexample:

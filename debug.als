@@ -27,6 +27,10 @@ sig Write extends Operation {
     value: V
 }
 
+run {some E} 
+
+
+/*
 fact ReturnsBeforeIsPartialOrder {
     // Partial orders are irreflexive and transitive (Section 2.1.3, p21)
 
@@ -145,5 +149,4 @@ fact NoConcurrencyInSameSession {
 
     all e1,e2: E | e1->e2 in ss => e1->e2 in (rb + ~rb)
 }
-
-run {some E} 
+*/
