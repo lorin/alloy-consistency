@@ -334,7 +334,7 @@ assert IsRegularRegister {
 We can then check to see if the register is regular:
 
 ```alloy
-check IsRegularRegister
+check IsRegularRegister for 4
 ```
 
 It fails, with this counterexample:
@@ -410,7 +410,7 @@ Note that E0,E1,E2 are all the same session, but E0 is concurrrent with E2, and
 E0 is concurrent with E1 (by "concurrent", we mean there's no returns before
 relationship).
 
-In a real system, in the same session, all events have to be order by the returns before relationship. SO we missed a constraint.
+In a real system, in the same session, all events have to be order by the returns before relationship. We missed a constraint.
 
 
 ```alloy
@@ -420,6 +420,9 @@ fact NoConcurrencyInSameSession {
 }
 ```
 
+Running it yields another counterexample:
+
+
 
 ## Is it an atomic register?
 
@@ -428,96 +431,17 @@ It's not exactly clear what "subsequent" means, so we'll assume it means "return
 ```alloy
 assert IsAtomicRegister {
 
-// If a read returns a value *v* and a subsequent read returns a value *w*, then the write of *w* does not precede the write of *v*.
-no w1,w2 : op.Write | 
-   some r1,r2 : op.Read | some v,w : Value |   
-    r1.rval=v and r2.rval=w and r1->r2 in rb and w1.op.value=v and w2.op.value=w and w2->w1 in rb
+    // (1,N) atomic registers satisfy (1,N) regular register validity
+    RegularRegisterValidity[]
+
+    // If a read returns a value *v* and a subsequent read returns a value *w*, then the write of *w* does not precede the write of *v*.
+    no w1,w2 : op.Write | 
+       some r1,r2 : op.Read | some v,w : Value |   
+        r1.rval=v and r2.rval=w and r1->r2 in rb and w1.op.value=v and w2.op.value=w and w2->w1 in rb
 }
 
 check IsAtomicRegister for 4
 ```
 
-# Ordering guarantees
 
-Chapter 5 of PoEC expresses ordering guarantees as predicates on abstract executions. Here's a few of them,
-with the notation from PoEC in the comments.
 
-```alloy
-assert ReadMyWrites {
-    // (so ⊆ vis)
-    so[] in vis
-}
-
-assert MonoticReads {
-    // (vis ; so) ⊆ vis
-    vis.so[] in vis
-}
-
-assert ConsistentPrefix {
-    // (ar ; (vis ∩ ¬ss)) ⊆ vis def
-    ar.(vis-ss) in vis
-}
-
-assert NoCircularCausality {
-    let so = rb & ss | 
-    let hb = ^(so + vis) |
-     no (id[E] & ^hb)   
-}
-
-assert CausalVisibility {
-    hb[] in vis
-}
-
-assert CausalArbitration {
-    hb[] in ar
-}
-
-assert RealTime {
-    rb in ar
-}
-
-//
-// convenience functions
-//
-
-// session order
-fun so[]: E->E {
-    rb & ss
-}
-
-// happens before
-fun hb[]: E->E {
-    ^(so[] + vis)
-}
-```
-
-Unfortuantely, we can't check the *single order* guarantee with Alloy because that guarantee is
-expressed in higher-order logic, and Alloy only supports expressions in first-order logic.
-
-However, if we constrain our traces so that all operations complete, then we can define single order:
-
-```alloy
-fact AllOperationsComplete {
-    no E.rval & NeverReturns
-}
-
-assert SingleOrder {
-    vis = ar
-}
-```
-
-## Checking for violations
-
-We can use Alloy to check if these properties can be violated given the constraints we've put on our model:
-
-```alloy
-check NoCircularCausality
-```
-
-And, indeed, we get a counterexample:
-
-![circular causality](circular-causality.png).
-
-The problem is:
-* (E1,E0) is in *rb*, which means that E1 returned before E0
-* (E0,E1) is in *vis*, which means that E0 is visible to E1
