@@ -444,6 +444,7 @@ Here's the counterexample Alloy comes up with:
 
 ![violates interval order](violates-interval-order.png)
 
+Here is what the rb relationship tells us:
 
 * E0 returns before E1
 * E3 returns before E2
@@ -456,7 +457,14 @@ If you try to draw this as a timeline, you will find that you can't. Try to make
 
 ![timeline 2](timeline-2.png)
 
+We need a constraint called *interval order*, from p32 of PoEC:
 
+```alloy
+fact IntervalOrder {
+// for all a,b,c,d∈E:(a−→b ∧ c−→d)⇒(a−→d ∨ c−→b).
+    all a,b,c,d : E | (a->b in rb and c->d in rb) => (a->d in rb or c->b in rb)
+}
+```
 
 
 
