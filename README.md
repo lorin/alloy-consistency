@@ -55,6 +55,27 @@ register. A register is a very simple data structure that holds a single value.
 
 A register supports two operations: *read a value* and *write a value*.
 
+We introduce two concepts from [Introduction to Reliable and Secure
+Distributed Programming][ItRaSDP] (ItRaSDP) by Cachin, Guerraoui and Rodridgues.
+
+* regular register
+* atomic register
+
+[ItRaSDP]: https://distributedprogramming.net/
+
+## (1,N) Regular register
+
+From ItRaSDP (Section 4.2.1, Module 4.1, p143), here's the validity property of a (1, N) regular register:
+
+> A read that is not concurrent with a write returns the last value written; a read that is concurrent with a write returns the last value written or the value currently written.
+
+## (1,N) Atomic register
+
+A (1,N) atomic register has the same properties as a (1,N) regular register, and an additional ordering property. 
+From ItRaSDP (Section 4.3.1, Module 4.2, p149):
+
+>  If a read returns a value *v* and a subsequent read returns a value *w*, then the write of *w* does not precede the write of *v*.
+
 # Abstract executions
 
 We'll use alloy to generate an *abstract execution* for a register. PoEC defines abstract executions
