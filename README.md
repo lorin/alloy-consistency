@@ -26,15 +26,20 @@ Note that this file is written in [Alloy Markdown format](https://github.com/All
 Here's an example of how well suited Alloy is to Burckhardt's approach. On page 22 of PoEC, Burckhardt has a table properties of
 binaries relations, along with their algebraic definitions. Translating from the algebraic definitions to Alloy syntax is very straightforward.
 
+We'll start by defining a macro to represent id<sub>A</sub> in Alloy:
 
-|Property    |Algebraic definition                          |Alloy syntax                       |
-|------------|----------------------------------------------|-----------------------------------|
-|symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                         |
-|reflexive   |id<sub>A</sub> ⊆ rel                          |`iden & A->A in rel`               |
-|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no iden & rel`                    |
-|transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`                   |
-|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no iden & ^rel`                   |
-|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`A->A in rel + ~rel + iden`        |
+```alloy
+let id[A] = A<:iden
+```
+
+|Property    |Algebraic definition                          |Alloy syntax                |
+|------------|----------------------------------------------|----------------------------|
+|symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                  |
+|reflexive   |id<sub>A</sub> ⊆ rel                          |`id[A] in rel`              |
+|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no id[A] & rel`            |
+|transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`            |
+|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no iden & ^rel`            |
+|total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`A->A in rel + ~rel + id[A]`|
 
 
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
@@ -152,7 +157,7 @@ fact ReturnsBeforeIsPartialOrder {
     // Partial orders are irreflexive and transitive (Section 2.1.3, p21)
 
     // irreflexive
-    no iden & rb
+    no id[E] & rb
 
     // transitive
     rb.rb in rb
@@ -162,7 +167,7 @@ fact SameSessionIsAnEquivalenceRelation {
     // Equivalence relations are reflexive, transitive, and symmetric (Section 2.1.3, p22)
 
     // reflexive
-    (iden & E->E) in ss
+    id[E] in ss
 
     // transitive
     ss.ss in ss
@@ -172,7 +177,7 @@ fact SameSessionIsAnEquivalenceRelation {
 }
 
 fact VisibilityIsAcyclic {
-    no iden & ^vis
+    no id[E] & ^vis
 }
 
 fact ArbitrationIsTotalOrder {
@@ -181,13 +186,13 @@ fact ArbitrationIsTotalOrder {
     // order defintion is in section 2.1.3
 
     // irreflexive
-    no iden & & ar
+    no iden & ar
 
     // transitive
     ar.ar in ar
 
     // total
-    E->E in ar + ~ar + iden
+    E->E in ar + ~ar + id[E]
 }
 ```
 
@@ -255,18 +260,22 @@ I played with Alloy's theme settings so that the *op*, *rval*, and *ss* fields a
 
 # Ordering guarantees
 
-Chapter 5 of PoEC expresses ordering guarantees as predicates on abstract executions. Here's a few of them:
+Chapter 5 of PoEC expresses ordering guarantees as predicates on abstract executions. Here's a few of them,
+with the notation from PoEC in the comments.
 
 ```alloy
 assert ReadMyWrites {
+    // (so ⊆ vis)
     so[] in vis
 }
 
 assert MonoticReads {
+    // (vis ; so) ⊆ vis
     vis.so[] in vis
 }
 
 assert ConsistentPrefix {
+    // (ar ; (vis ∩ ¬ss)) ⊆ vis def
     ar.(vis-ss) in vis
 }
 
@@ -306,7 +315,7 @@ fun hb[]: E->E {
 Unfortuantely, we can't check the *single order* guarantee with Alloy because that guarantee is
 expressed in higher-order logic, and Alloy only supports expressions in first-order logic.
 
-However, if we constrain things so that all operations complete, then we can define single order:
+However, if we constrain our traces so that all operations complete, then we can define single order:
 
 ```alloy
 fact AllOperationsComplete {
