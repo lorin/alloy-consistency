@@ -38,7 +38,7 @@ let id[A] = A<:iden
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`id[A] in rel`              |
 |irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no id[A] & rel`            |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`            |
-|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no iden & ^rel`            |
+|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no id[A] & ^rel`           |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`A->A in rel + ~rel + id[A]`|
 
 
@@ -186,7 +186,7 @@ fact ArbitrationIsTotalOrder {
     // order defintion is in section 2.1.3
 
     // irreflexive
-    no iden & ar
+    no id[E] & ar
 
     // transitive
     ar.ar in ar
@@ -282,7 +282,7 @@ assert ConsistentPrefix {
 assert NoCircularCausality {
     let so = rb & ss | 
     let hb = ^(so + vis) |
-     no (iden & E->E & ^hb)   
+     no (id[E] & ^hb)   
 }
 
 assert CausalVisibility {
