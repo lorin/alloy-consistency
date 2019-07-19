@@ -404,7 +404,7 @@ fact ArbitrationConsistentWithReturnsBefore {
 
 If we check again, Alloy finds another counterexample:
 
-![ss rb inconsistency](ss-rb-consistent.png)
+![ss rb inconsistent](ss-rb-inconsistent.png)
 
 Note that E0,E1,E2 are all the same session, but E0 is concurrrent with E2, and
 E0 is concurrent with E1 (by "concurrent", we mean there's no returns before
