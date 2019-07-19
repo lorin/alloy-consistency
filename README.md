@@ -311,7 +311,7 @@ all r : op.Read |
 //  a read that is concurrent with a write returns the last value written or the value currently written.
 all r : op.Read |
     (some w : op.Write | areConcurrent[r,w]) =>
-        r.rval = lastValueWritten[r] or r.rval = {w:op.Write | areConcurrent[r,w]}.op.value
+        r.rval in lastValueWritten[r] + {w:op.Write | areConcurrent[r,w]}.op.value
 }
 
 // helpers
@@ -334,7 +334,7 @@ assert IsRegularRegister {
 We can then check to see if the register is regular:
 
 ```alloy
-check IsRegularRegister for 4
+//check IsRegularRegister for 4
 ```
 
 It fails, with this counterexample:
@@ -420,21 +420,6 @@ fact NoConcurrencyInSameSession {
 }
 ```
 
-Running it yields another counterexample:
-
-![multiple concurrent writes](multiple-concurrent-writes.png)
-
-
-The problem is that E0 and E1 are both concurrent writes for E2, and our `lastValueWritten` function assumed only one write would be concurrent.
-
-
-```alloy
-fun lastValueWritten[e : E] : Value { 
-    let mostRecentWrite = {w : op.Write | (w->e in rb) and (no w2 : op.Write | w->w2 in rb and (w2->e in rb or areConcurrent[e,w2]))} |
-        some mostRecentWrite=>mostRecentWrite.op.value else Undef
-}
-```
-
 
 ## Is it an atomic register?
 
@@ -454,6 +439,26 @@ assert IsAtomicRegister {
 
 check IsAtomicRegister for 4
 ```
+
+Here's the counterexample Alloy comes up with:
+
+![violates interval order](violates-interval-order.png)
+
+
+* E0 returns before E1
+* E3 returns before E2
+* E0 is concurrent with E2
+* E1 is concurrent with E2
+* E0 is concurrent with E3
+* E1 is concurrent with E3
+
+If you try to draw this as a timeline, you will find that you can't. Try to make each read overlap both writes without having the writes overlap each other or having the reads overlap each other:
+
+![timeline 2](timeline-2.png)
+
+
+
+
 
 
 
