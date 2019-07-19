@@ -55,21 +55,21 @@ register. A register is a very simple data structure that holds a single value.
 
 A register supports two operations: *read a value* and *write a value*.
 
-We introduce two concepts from [Introduction to Reliable and Secure
+We introduce two models of a shared-memory register from the book [Introduction to Reliable and Secure
 Distributed Programming][ItRaSDP] (ItRaSDP) by Cachin, Guerraoui and Rodridgues.
 
-* regular register
-* atomic register
+* (1,N) regular register
+* (1,N) atomic register
 
 [ItRaSDP]: https://distributedprogramming.net/
 
-## (1,N) Regular register
+## (1,N) regular register
 
 From ItRaSDP (Section 4.2.1, Module 4.1, p143), here's the validity property of a (1, N) regular register:
 
 > A read that is not concurrent with a write returns the last value written; a read that is concurrent with a write returns the last value written or the value currently written.
 
-## (1,N) Atomic register
+## (1,N) atomic register
 
 A (1,N) atomic register has the same properties as a (1,N) regular register, and an additional ordering property. 
 From ItRaSDP (Section 4.3.1, Module 4.2, p149):
@@ -280,6 +280,62 @@ Here's what it generated:
 ![instance](instance.png)
 
 I played with Alloy's theme settings so that the *op*, *rval*, and *ss* fields are shown as attributes.
+
+# Is it a regular register?
+
+Let's check if our model satisfies the validity property of a (1,N) regular register.
+
+First, a (1,N) register has only one writer. In the PoEC model, that means all of the writers belong
+to the same session.
+
+Our model doesn't enforce this, so we need to specify it as a fact:
+
+
+```alloy
+fact OnlyOneWriter {
+    all w1,w2: op.Write | w1->w2 in ss
+}
+```
+
+Next, we assert that the register is regular. 
+
+
+```alloy
+assert IsRegularRegister {
+// A read that is not concurrent with a write returns the last value written
+all r : op.Read | 
+    (no w : op.Write | areConcurrent[r,w]) => r.rval = lastValueWritten[r]
+
+
+//  a read that is concurrent with a write returns the last value written or the value currently written.
+all r : op.Read |
+    (some w : op.Write | areConcurrent[r,w]) =>
+        r.rval = lastValueWritten[r] or r.rval = {w:op.Write | areConcurrent[r,w]}.op.value
+}
+
+// helpers
+
+fun lastValueWritten[e : E] : Value {
+    {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)}.op.value
+}
+
+pred areConcurrent[e1,e2 : E] {
+    e1->e2 not in rb
+    e2->e1 not in rb
+}
+
+```
+
+We can then check to see if the register is regular:
+
+```alloy
+check IsRegularRegister
+```
+
+It fails, with this counterexample:
+
+![regular register counterexample](single-read-example.png)
+
 
 # Ordering guarantees
 
