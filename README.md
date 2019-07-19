@@ -315,7 +315,7 @@ all r : op.Read |
 
 // helpers
 
-fun lastValueWritten[e : E] : Value {
+fun lastValueWrittenWRONG[e : E] : Value { // This is actually wrong, we'll see later
     {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)}.op.value
 }
 
@@ -335,6 +335,28 @@ check IsRegularRegister
 It fails, with this counterexample:
 
 ![regular register counterexample](single-read-example.png)
+
+The problem is that our `IsRegularRegister` assertion doesn't take into account the case where there hasn't been a write yet.
+
+We need to fix the lastValueWritten function:
+
+```alloy
+fun lastValueWritten[e : E] : Value {
+    let mostRecentWrite = {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)} |
+        some mostRecentWrite=>mostRecentWrite.op.value else Undef
+}
+```
+
+Once we do that, and run our check, we get another counterexample:
+
+![vis rb problem](vis-rb-problem.png).
+
+The problem is that E0 returned before E1, but somehow E0 read E1's write!
+
+The problem is that the *vis* relationship, which determines write visibility in our model, isn't consistent with causality.
+
+We need to add a restriction to our model. 
+
 
 
 # Ordering guarantees
