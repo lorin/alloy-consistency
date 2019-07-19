@@ -355,8 +355,19 @@ The problem is that E0 returned before E1, but somehow E0 read E1's write!
 
 The problem is that the *vis* relationship, which determines write visibility in our model, isn't consistent with causality.
 
-We need to add a restriction to our model. 
+We need to add a restriction to our model. We'll restrict things so writes can't be visible from the future.
 
+```alloy
+fact WritesFromTheFutureAreNeverVisible {
+    no r,w : E | r in op.Read and w in op.Write and r->w in rb and w->r in vis
+}
+```
+
+Running it again, we get another counterexample:
+
+![write isn't visibile](write-isnt-visible.png)
+
+Now we have the opposite problem: E1 is a write, E1 returns before E0, and E0 doesn't read the write!
 
 
 # Ordering guarantees
