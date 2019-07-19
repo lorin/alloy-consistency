@@ -81,8 +81,6 @@ fact ReadsReturnValuesOrUndef {
     all r : op.Read | r.rval in (Value + Undef)
 }
 
-/*
-
 fact ReadLastVisibleWrite {
     all r : op.Read | 
         some (op.Write & vis.r) => r.rval=lastVisibleWrite[r].op.value else r.rval=Undef
@@ -100,33 +98,6 @@ fact OnlyOneWriter {
     all w1,w2: op.Write | w1->w2 in ss
 }
 
-pred RegularRegisterValidity[] {
-// A read that is not concurrent with a write returns the last value written
-all r : op.Read | 
-    (no w : op.Write | areConcurrent[r,w]) => r.rval = lastValueWritten[r]
-
-
-//  a read that is concurrent with a write returns the last value written or the value currently written.
-all r : op.Read |
-    (some w : op.Write | areConcurrent[r,w]) =>
-        r.rval = lastValueWritten[r] or r.rval = {w:op.Write | areConcurrent[r,w]}.op.value
-}
-
-// helpers
-
-fun lastValueWrittenWRONG[e : E] : Value { // This is actually wrong, we'll see later
-    {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)}.op.value
-}
-
-pred areConcurrent[e1,e2 : E] {
-    e1->e2 not in rb
-    e2->e1 not in rb
-}
-
-assert IsRegularRegister {
-    RegularRegisterValidity[]
-}
-
 
 fun lastValueWritten[e : E] : Value {
     let mostRecentWrite = {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)} |
@@ -142,12 +113,15 @@ fact WritesThatReturnBeforeReadsAreVisible {
 }
 
 fact ArbitrationConsistentWithReturnsBefore {
-    rb in ar
+//    rb in ar
 }
+
 
 fact NoConcurrencyInSameSession {
-    // For any two events, if they are in the samee session, one must return before the other
+    // For any two events, if they are in the same session, one must return before the other
+	ss-id[E] in (rb+ ~rb)
 
-    all e1,e2: E | e1->e2 in ss => e1->e2 in (rb + ~rb)
+
+//	all e1,e2: E | ((e1->e2 in ss) => (e1->e2 in (rb + ~rb)))
 }
-*/
+

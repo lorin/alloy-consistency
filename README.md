@@ -334,8 +334,7 @@ assert IsRegularRegister {
 We can then check to see if the register is regular:
 
 ```alloy
-//check IsRegularRegister for 7
-run {some E} 
+check IsRegularRegister
 ```
 
 It fails, with this counterexample:
@@ -417,8 +416,7 @@ In a real system, in the same session, all events have to be order by the return
 ```alloy
 fact NoConcurrencyInSameSession {
     // For any two events, if they are in the samee session, one must return before the other
-
-    all e1,e2: E | e1->e2 in ss => e1->e2 in (rb + ~rb)
+    ss-id[E] in rb + ~rb
 }
 ```
 
