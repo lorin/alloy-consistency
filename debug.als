@@ -40,7 +40,6 @@ fact ReturnsBeforeIsPartialOrder {
     rb.rb in rb
 }
 
-/*
 fact SameSessionIsAnEquivalenceRelation {
     // Equivalence relations are reflexive, transitive, and symmetric (Section 2.1.3, p22)
 
@@ -81,6 +80,8 @@ fact WritesReturnOK {
 fact ReadsReturnValuesOrUndef {
     all r : op.Read | r.rval in (Value + Undef)
 }
+
+/*
 
 fact ReadLastVisibleWrite {
     all r : op.Read | 
