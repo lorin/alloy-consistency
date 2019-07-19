@@ -301,7 +301,7 @@ Next, we assert that the register is regular.
 
 
 ```alloy
-assert IsRegularRegister {
+pred RegularRegisterValidity[] {
 // A read that is not concurrent with a write returns the last value written
 all r : op.Read | 
     (no w : op.Write | areConcurrent[r,w]) => r.rval = lastValueWritten[r]
@@ -324,12 +324,16 @@ pred areConcurrent[e1,e2 : E] {
     e2->e1 not in rb
 }
 
+assert IsRegularRegister {
+    RegularRegisterValidity[]
+}
+
 ```
 
 We can then check to see if the register is regular:
 
 ```alloy
-// check IsRegularRegister
+check IsRegularRegister for 4
 ```
 
 It fails, with this counterexample:
@@ -377,7 +381,20 @@ fact WritesThatReturnBeforeReadsAreVisible {
 }
 ```
 
-And with that additional fact, Alloy doesn't find a counterexample.
+Yet another counter-example! Let's see what's violated here. 
+
+* one read, E1
+* two writes, E0, E2
+
+The rb ordering is:
+
+E2,E0,E1
+
+The vis relationships are:
+(E0,E1)
+(E2,E1)
+
+
 
 
 ## Is it an atomic register?
