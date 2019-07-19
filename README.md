@@ -199,6 +199,7 @@ fact SameSessionIsAnEquivalenceRelation {
     ss=~ss
 }
 
+
 fact VisibilityIsAcyclic {
     no id[E] & ^vis
 }
@@ -381,20 +382,44 @@ fact WritesThatReturnBeforeReadsAreVisible {
 }
 ```
 
-Yet another counter-example! Let's see what's violated here. 
+If we run it again, we get another counterexample. Here's a visualization that shows some of the relationships:
 
-* one read, E1
-* two writes, E0, E2
+![ar rb inconsistent](ar-rb-inconsistent.png)
 
-The rb ordering is:
+To understand the problem better, here's a timeline graph I manually created with OmniGraffle based on this trace:
 
-E2,E0,E1
+![timeline 1](timeline-1.png).
 
-The vis relationships are:
-(E0,E1)
-(E2,E1)
+Note that E1 reads v0 even though E0 wrote v1.
+
+The problem is that the *ar* relationship is inconsistent with the *rb* relationship: E2 is taking effect after E0, even though E0 returned before E2.
+
+We need to specify that the register arbitrates writes consistently with the *returns before* relation:
+
+```alloy
+fact ArbitrationConsistentWithReturnsBefore {
+    rb in ar
+}
+```
+
+If we check again, Alloy finds another counterexample:
+
+![ss rb inconsistency](ss-rb-consistent.png)
+
+Note that E0,E1,E2 are all the same session, but E0 is concurrrent with E2, and
+E0 is concurrent with E1 (by "concurrent", we mean there's no returns before
+relationship).
+
+In a real system, in the same session, all events have to be order by the returns before relationship. SO we missed a constraint.
 
 
+```alloy
+fact NoConcurrencyInSameSession {
+    // For any two events, if they are in the samee session, one must return before the other
+
+    all e1,e2: E | e1->e2 in ss => e1->e2 in (rb + ~rb)
+}
+```
 
 
 ## Is it an atomic register?
