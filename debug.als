@@ -30,7 +30,6 @@ sig Write extends Operation {
 run {some E} 
 
 
-/*
 fact ReturnsBeforeIsPartialOrder {
     // Partial orders are irreflexive and transitive (Section 2.1.3, p21)
 
@@ -41,6 +40,7 @@ fact ReturnsBeforeIsPartialOrder {
     rb.rb in rb
 }
 
+/*
 fact SameSessionIsAnEquivalenceRelation {
     // Equivalence relations are reflexive, transitive, and symmetric (Section 2.1.3, p22)
 
