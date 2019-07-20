@@ -320,9 +320,13 @@ fun lastValueWrittenWRONG[e : E] : Value { // This is actually wrong, we'll see 
     {w : op.Write | (w->e in rb) and (no w2 : op.Write | w2->e in rb and w->w2 in rb)}.op.value
 }
 
+// concurrent
+fun co[] : E->E {
+    E->E - (rb + ~rb + id[E])
+}
+
 pred areConcurrent[e1,e2 : E] {
-    e1->e2 not in rb
-    e2->e1 not in rb
+    e1->e2 in co[]
 }
 
 assert IsRegularRegister {
@@ -433,8 +437,7 @@ assert IsAtomicRegister {
 
     // If a read returns a value *v* and a subsequent read returns a value *w*, then the write of *w* does not precede the write of *v*.
     no disj w1,w2 : op.Write | 
-       some disj r1,r2 : op.Read, disj v,w : Value |   
-        r1.rval=v and r2.rval=w and r1->r2 in rb and w1.op.value=v and w2.op.value=w and w2->w1 in rb
+       some disj r1,r2 : op.Read, disj v,w : Value | {r1.rval=v r2.rval=w r1->r2 in rb w1.op.value=v w2.op.value=w w2->w1 in rb}
 }
 
 check IsAtomicRegister for 4
@@ -466,27 +469,10 @@ fact IntervalOrder {
 }
 ```
 
-Counter-example:
+If we run this, we get the following counterexample:
 
 
-```
-this/E<:ar={E$0->E$2, E$0->E$3, E$1->E$0, E$1->E$2, E$1->E$3, E$3->E$2}
-
-E1, E0, E3, E2
-```
-
-Here's same session:
-
-```
-this/E<:ss={E$0->E$0, E$1->E$1, E$1->E$3, E$2->E$2, E$3->E$1, E$3->E$3}
+It's easier to understand if redrawn as a timeline:
 
 
-   E0
-
-E1     E3 E2
-```
-
-The problem with this counterexample is that visibility isn't consistent with arbitration:
-
-
-
+![timeline 3](timeline-3.png)
