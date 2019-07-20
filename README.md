@@ -494,7 +494,6 @@ However, it violates the nature of an atomic register. Note how the writes are o
 For ordering guarantees, we need to use the *ar* and *vis* relationships:
 
 ```alloy
-/*
 fact VisibilityIsConsistentWithArbitration {
     vis in ar
 }
@@ -502,7 +501,6 @@ fact VisibilityIsConsistentWithArbitration {
 fact VisibilityIsConsistentWithReturnsBefore {
     rb in vis
 }
-*/
 ```
 
 ## Encoding the guarantees
@@ -517,7 +515,7 @@ assert ReadMyWrites {
     so[] in vis
 }
 
-assert MonoticReads {
+assert MonotonicReads {
     // (vis ; so) ⊆ vis
     vis.so[] in vis
 }
@@ -566,11 +564,9 @@ expressed in higher-order logic, and Alloy only supports expressions in first-or
 However, if we constrain our traces so that all operations complete, then we can define single order:
 
 ```alloy
-/*
 fact AllOperationsComplete {
     no E.rval & NeverReturns
 }
-*/
 
 assert SingleOrder {
     vis = ar
@@ -582,6 +578,6 @@ assert SingleOrder {
 We can check the regular register to see which consistency models are violated.
 
 ```alloy
-run {#Write=2 #Read=2 some r : Read | Undef not in (op.r).rval}
-//check ReadMyWrites for 6
+// run {#Read>1 #Write>1 some r : Read | Undef not in (op.r).rval} for 6
+check MonotonicReads
 ```
