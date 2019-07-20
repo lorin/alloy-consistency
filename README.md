@@ -479,3 +479,11 @@ It's easier to understand if redrawn as a timeline:
 
 ![timeline 3](timeline-3.png)
 
+
+Here there are three processes: one writer and two readers.
+
+If you look at each read, you can find a write that's either concurrent or happened before, which is consistent with a regular registre.
+
+However, it violates the nature of an atomic register. Note how the writes are ordered (0,1), and how the reads are ordered (1,0). This weirdness is what the atomic register is designed to avoid.
+
+
