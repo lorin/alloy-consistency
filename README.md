@@ -38,9 +38,9 @@ Here are the properties and their direct translation into alloy.
 |------------|----------------------------------------------|----------------------------|
 |symmetric   |rel=rel<sup>-1</sup>                          |`rel=~rel`                  |
 |reflexive   |id<sub>A</sub> ⊆ rel                          |`id[A] in rel`              |
-|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`no id[A] & rel`            |
+|irreflexive |id<sub>A</sub> ∩ rel = ∅                      |`id[A] & rel = none`        |
 |transitive  |(rel;rel) ⊆ rel                               |`rel.rel in rel`            |
-|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`no id[A] & ^rel`           |
+|acyclic     |id<sub>A</sub> ∩ rel<sup>+</sup> = ∅          |`id[A] & ^rel = none`       |
 |total       |rel ∪ rel<sup>-1</sup> ∪ id<sub>A</sub> = A×A |`rel + ~rel + id[A] = A->A` |
 
 
@@ -432,8 +432,8 @@ assert IsAtomicRegister {
     RegularRegisterValidity[]
 
     // If a read returns a value *v* and a subsequent read returns a value *w*, then the write of *w* does not precede the write of *v*.
-    no w1,w2 : op.Write | 
-       some r1,r2 : op.Read | some v,w : Value |   
+    no disj w1,w2 : op.Write | 
+       some disj r1,r2 : op.Read, disj v,w : Value |   
         r1.rval=v and r2.rval=w and r1->r2 in rb and w1.op.value=v and w2.op.value=w and w2->w1 in rb
 }
 
@@ -466,7 +466,27 @@ fact IntervalOrder {
 }
 ```
 
+Counter-example:
 
+
+```
+this/E<:ar={E$0->E$2, E$0->E$3, E$1->E$0, E$1->E$2, E$1->E$3, E$3->E$2}
+
+E1, E0, E3, E2
+```
+
+Here's same session:
+
+```
+this/E<:ss={E$0->E$0, E$1->E$1, E$1->E$3, E$2->E$2, E$3->E$1, E$3->E$3}
+
+
+   E0
+
+E1     E3 E2
+```
+
+The problem with this counterexample is that visibility isn't consistent with arbitration:
 
 
 
