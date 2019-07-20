@@ -440,7 +440,7 @@ assert IsAtomicRegister {
        some disj r1,r2 : op.Read, disj v,w : Value | {r1.rval=v r2.rval=w r1->r2 in rb w1.op.value=v w2.op.value=w w2->w1 in rb}
 }
 
-check IsAtomicRegister for 4
+// check IsAtomicRegister for 4
 ```
 
 Here's the counterexample Alloy comes up with:
@@ -487,3 +487,99 @@ If you look at each read, you can find a write that's either concurrent or happe
 However, it violates the nature of an atomic register. Note how the writes are ordered (0,1), and how the reads are ordered (1,0). This weirdness is what the atomic register is designed to avoid.
 
 
+# Ordering guarantee
+
+## Restricting arbitration and visibility
+
+For ordering guarantees, we need to use the *ar* and *vis* relationships:
+
+```alloy
+/*
+fact VisibilityIsConsistentWithArbitration {
+    vis in ar
+}
+
+fact VisibilityIsConsistentWithReturnsBefore {
+    rb in vis
+}
+*/
+```
+
+## Encoding the guarantees
+
+Chapter 5 of PoEC expresses ordering guarantees as predicates on abstract executions. 
+Here's a few of them,
+with the notation from PoEC in the comments.
+
+```alloy
+assert ReadMyWrites {
+    // (so ⊆ vis)
+    so[] in vis
+}
+
+assert MonoticReads {
+    // (vis ; so) ⊆ vis
+    vis.so[] in vis
+}
+
+assert ConsistentPrefix {
+    // (ar ; (vis ∩ ¬ss)) ⊆ vis def
+    ar.(vis-ss) in vis
+}
+
+assert NoCircularCausality {
+    let so = rb & ss | 
+    let hb = ^(so + vis) |
+     no (id[E] & ^hb)   
+}
+
+assert CausalVisibility {
+    hb[] in vis
+}
+
+assert CausalArbitration {
+    hb[] in ar
+}
+
+assert RealTime {
+    rb in ar
+}
+
+//
+// convenience functions
+//
+
+// session order
+fun so[]: E->E {
+    rb & ss
+}
+
+// happens before
+fun hb[]: E->E {
+    ^(so[] + vis)
+}
+```
+
+Unfortuantely, we can't check the *single order* guarantee with Alloy because that guarantee is
+expressed in higher-order logic, and Alloy only supports expressions in first-order logic.
+
+However, if we constrain our traces so that all operations complete, then we can define single order:
+
+```alloy
+fact AllOperationsComplete {
+    no E.rval & NeverReturns
+}
+
+assert SingleOrder {
+    vis = ar
+}
+```
+
+## Checking the regular register
+
+We can check the regular register to see which consistency models are violated.
+
+```alloy
+run {#Write=2 and #Read=2}
+check ReadMyWrites for 6
+```
