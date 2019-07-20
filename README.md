@@ -471,8 +471,11 @@ fact IntervalOrder {
 
 If we run this, we get the following counterexample:
 
+![not atomic](not-atomic.png)
+
 
 It's easier to understand if redrawn as a timeline:
 
 
 ![timeline 3](timeline-3.png)
+
