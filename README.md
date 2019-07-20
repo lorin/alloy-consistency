@@ -566,9 +566,11 @@ expressed in higher-order logic, and Alloy only supports expressions in first-or
 However, if we constrain our traces so that all operations complete, then we can define single order:
 
 ```alloy
+/*
 fact AllOperationsComplete {
     no E.rval & NeverReturns
 }
+*/
 
 assert SingleOrder {
     vis = ar
@@ -580,6 +582,6 @@ assert SingleOrder {
 We can check the regular register to see which consistency models are violated.
 
 ```alloy
-run {#Write=2 and #Read=2}
-check ReadMyWrites for 6
+run {#Write=2 #Read=2 some r : Read | Undef not in (op.r).rval}
+//check ReadMyWrites for 6
 ```
