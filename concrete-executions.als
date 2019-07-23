@@ -9,14 +9,77 @@ sig E {
 }
 
 // Transition
-sig Tr {}
+abstract sig Tr {
+}
 
+sig init extends Tr {
+    post : State,
+    M : set Message
+}
+
+sig call extends Tr {
+    op : Op,
+    pre: State,
+    post: State,
+    M : set Message
+}
+
+sig rcv extends Tr {
+    m : Message,
+    pre: State,
+    post: State,
+    M : set Message
+}
+
+sig step extends Tr {
+    p : P,
+    pre: State,
+    post: State,
+    M: set Message
+}
+
+sig callret extends Tr {
+    op : Op,
+    pre: State,
+    post: State,
+    M : set Message,
+    v : V
+}
+
+sig rcvret extends Tr {
+    m : Message,
+    pre: State,
+    post: State,
+    M : set Message,
+    v : V
+}
+
+sig stepret extends Tr {
+    p : P,
+    pre: State,
+    post: State,
+    M: set Message,
+    v : V
+}
+
+
+
+// values
+sig V {}
+
+// processes
+sig P {}
+
+// operations
+sig Op {}
 
 // roles
 sig R {}
 
 // messages
-sig M {}
+sig Message {}
+
+sig State {}
 
 fact eoIsEnumeration { 
      // enumeration is total order and natural
