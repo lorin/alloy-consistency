@@ -10,54 +10,61 @@ sig E {
 
 // Transition
 abstract sig Tr {
+    op: Op,
+    rcv: Message,
+    proc: P,
+    pre: State,
+    post: State,
+    snd: set Message,
+    rval: V
 }
 
 sig init extends Tr {
-    post : State,
+    σ': State,
     M : set Message
 }
 
 sig call extends Tr {
-    op : Op,
-    pre: State,
-    post: State,
+    o : Op,
+    σ: State,
+    σ': State,
     M : set Message
 }
 
 sig rcv extends Tr {
     m : Message,
-    pre: State,
-    post: State,
+    σ: State,
+    σ': State,
     M : set Message
 }
 
 sig step extends Tr {
     p : P,
-    pre: State,
-    post: State,
+    σ: State,
+    σ': State,
     M: set Message
 }
 
 sig callret extends Tr {
-    op : Op,
-    pre: State,
-    post: State,
+    o : Op,
+    σ: State,
+    σ': State,
     M : set Message,
     v : V
 }
 
 sig rcvret extends Tr {
     m : Message,
-    pre: State,
-    post: State,
+    σ: State,
+    σ': State,
     M : set Message,
     v : V
 }
 
 sig stepret extends Tr {
     p : P,
-    pre: State,
-    post: State,
+    σ: State,
+    σ': State,
     M: set Message,
     v : V
 }
