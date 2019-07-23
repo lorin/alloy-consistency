@@ -543,6 +543,11 @@ assert RealTime {
     rb in ar
 }
 
+assert SingleOrder {
+    // ∃E' ⊆rval (∇):vis=ar\(E'×E)
+    some E' : set rval.NeverReturns  | vis = ar - (E'->E)
+}
+
 //
 // convenience functions
 //
@@ -558,26 +563,52 @@ fun hb[]: E->E {
 }
 ```
 
-Unfortuantely, we can't check the *single order* guarantee with Alloy because that guarantee is
-expressed in higher-order logic, and Alloy only supports expressions in first-order logic.
 
-However, if we constrain our traces so that all operations complete, then we can define single order:
+The *single order* guarantee is tricky because it's expressed in higher-order logic. In general, Alloy can't handle
+higher-order expressions. IF we try to check the expression above, we'll get the error:
+
+```
+Analysis cannot be performed since it requires higher-order
+quantification that could not be skolemized.
+```
+
+What we can do instead is restrict our executions to ones where all operations complete
 
 ```alloy
 fact AllOperationsComplete {
     no E.rval & NeverReturns
 }
 
-assert SingleOrder {
+// the "C" is for "complete"
+assert SingleOrderC {
     vis = ar
 }
 ```
+
+
 
 ## Checking the regular register
 
 We can check the regular register to see which consistency models are violated.
 
+To generate an interesting one, we'll ensure that there are some reads and writes:
+
+
+To simplify visualization, create an arg function that will show write arguments as an attribute
+
+```alloy
+fun arg[]: E->(V+Undef) {
+    {e : E, v:(V+Undef) | v=(e in op.Write => e.op.value else Undef)}
+}
+```
+
+
 ```alloy
 // run {#Read>1 #Write>1 some r : Read | Undef not in (op.r).rval} for 6
-check MonotonicReads
+fact multipleReadsAndWrites {
+    #Write>1
+    #Read>1
+    Undef not in E.rval
+}
+check SingleOrderC for 4
 ```
