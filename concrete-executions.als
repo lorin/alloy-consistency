@@ -10,13 +10,13 @@ sig E {
 
 // Transition
 abstract sig Tr {
-    op: Op,
-    rcv: Message,
-    proc: P,
+    op: Op+Bottom,
+    rcv: Message+Bottom,
+    proc: P+Bottom,
     pre: State+Bottom,
     post: State,
     snd: set Message,
-    rval: V
+    rval: V+Bottom
 }
 
 sig init extends Tr {
@@ -125,6 +125,14 @@ fun prd[E': set E, r:E->E, e: E] : E+Bottom {
             else Bottom
 }
 
+fun calls[E' : set E] : set E {
+    {e: E' | e.tr.op != Bottom}
+}
+
+fun returns[E' : set E] : set E {
+    {e : E' | e.tr.rval != Bottom}
+}
+
 pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
     // (t1) eo is an enumeration of E.
     isEnumeration[E', eo']
@@ -143,7 +151,7 @@ pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
     // (t4) A call transition may not follow another call transition unless there is a return transition in between them:
     // ∀c1, c2 ∈ calls(E) : c1 <eo c2 ⇒
     // ∃r ∈ returns(E) : c1 ≤eo r <eo c2
-    // TODO: I am here
+    all disj c1,c2 : calls[E'] | c1->c2 in eo' => some r : returns[E'] | {c1->r in eo'  r->c2 in eo'}
 }
 
 // TODO: implement this and check that all trajectories are well-formed
