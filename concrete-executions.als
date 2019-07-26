@@ -13,7 +13,7 @@ abstract sig Tr {
     op: Op,
     rcv: Message,
     proc: P,
-    pre: State,
+    pre: State+Bottom,
     post: State,
     snd: set Message,
     rval: V
@@ -70,6 +70,10 @@ sig stepret extends Tr {
 }
 
 
+// ⊥
+sig Bottom {}
+
+
 
 // values
 sig V {}
@@ -88,7 +92,8 @@ sig Message {}
 
 sig State {}
 
-fact eoIsEnumeration { 
+
+pred isEnumeration[es: E, r:E->E] {
      // enumeration is total order and natural
      // alloy models are finite so we just need to check for total order
 
@@ -98,21 +103,56 @@ fact eoIsEnumeration {
 
 
     // irreflexive
-    no id[E] & eo
+    no id[es] & r
 
     // transitive
-    eo.eo in eo
+    r.r in r
 
     // total
-     eo + ~eo + id[E] = E->E
+     es->es in r + ~r + id[es] 
+}
+
+fact eoIsEnumeration { 
+    isEnumeration[E,eo]
 }
 
 
-pred isTrajectory[es : set E, eo : E->E, tr: E->Tr] {
+// predecessor
+fun prd[E': set E, r:E->E, e: E] : E+Bottom {
+    let es = r.e |
+        (some es) =>
+            {e' : es | no f: es |  e'->f in r}
+            else Bottom
 }
+
+pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
+    // (t1) eo is an enumeration of E.
+    isEnumeration[E', eo']
+
+    // (t3) The first (and only the first) transition is an initialization
+    // transition, and the pre-state of each transition matches the
+    // post-state of the previous transition:
+    // ∀e ∈ E : 􏰁 pre(e) = ⊥ = pred(E,eo,e)
+    // ∨ pre(e) = post(pred(E, eo, e)) 􏰂
+    all e : E' | {
+        e.tr'.pre = Bottom
+        prd[E',eo,e] = Bottom
+    } or e.tr'.pre = prd[E',eo',e].tr.post
+
+
+    // (t4) A call transition may not follow another call transition unless there is a return transition in between them:
+    // ∀c1, c2 ∈ calls(E) : c1 <eo c2 ⇒
+    // ∃r ∈ returns(E) : c1 ≤eo r <eo c2
+    // TODO: I am here
+}
+
+// TODO: implement this and check that all trajectories are well-formed
+//pred isWellFormed[E': set E, eo':E->E, tr': E->Tr] {
+//}
 
 fact eventsForEachRoleAreTrajectories { 
-    all r : R | isTrajectory[role.r, eo, tr]
+    all r : R | let E'=role.r |
+        isTrajectory[E', E'<:eo:>E', E'<:tr]
 }
 
 fact delConstraints {
