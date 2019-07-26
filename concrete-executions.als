@@ -137,6 +137,9 @@ pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
     // (t1) eo is an enumeration of E.
     isEnumeration[E', eo']
 
+    // (t2) tr : E → Transitions specifies the transition of each event. 
+    // This is our tr relation
+
     // (t3) The first (and only the first) transition is an initialization
     // transition, and the pre-state of each transition matches the
     // post-state of the previous transition:
@@ -155,8 +158,12 @@ pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
 }
 
 // TODO: implement this and check that all trajectories are well-formed
-//pred isWellFormed[E': set E, eo':E->E, tr': E->Tr] {
+//pred isWellFormedTrajectory[E': set E, eo':E->E, tr': E->Tr] {
+// p86
+// Definition 7.4 (Well-formed Trajectories). A trajectory (E,eo,tr) is well-formed if each event is preceded by no more returns than calls:
+// ∀e∈E:􏰈􏰈{r∈returns(E)|r≤eo e}􏰈􏰈≤􏰈􏰈{c∈calls(E)|c≤eo e}􏰈􏰈
 //}
+
 
 fact eventsForEachRoleAreTrajectories { 
     all r : R | let E'=role.r |
