@@ -9,14 +9,16 @@ sig E {
 }
 
 // Transition
+// We use none to model ⊥
+
 abstract sig Tr {
-    op: Op+Bottom,
-    rcv: Message+Bottom,
-    proc: P+Bottom,
-    pre: State+Bottom,
+    op: lone Op,
+    rcv: lone Message,
+    proc: lone P,
+    pre: lone State,
     post: State,
     snd: set Message,
-    rval: V+Bottom
+    rval: lone V
 }
 
 sig init extends Tr {
@@ -70,11 +72,6 @@ sig stepret extends Tr {
 }
 
 
-// ⊥
-sig Bottom {}
-
-
-
 // values
 sig V {}
 
@@ -118,19 +115,16 @@ fact eoIsEnumeration {
 
 
 // predecessor
-fun prd[E': set E, r:E->E, e: E] : E+Bottom {
-    let es = r.e |
-        (some es) =>
-            {e' : es | no f: es |  e'->f in r}
-            else Bottom
+fun prd[E': set E, r:E->E, e: E] : lone E {
+    let es = r.e | {e' : es | no f: es |  e'->f in r}
 }
 
 fun calls[E' : set E] : set E {
-    {e: E' | e.tr.op != Bottom}
+    {e: E' | some e.tr.op}
 }
 
 fun returns[E' : set E] : set E {
-    {e : E' | e.tr.rval != Bottom}
+    {e : E' | some e.tr.rval}
 }
 
 pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
@@ -145,10 +139,7 @@ pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
     // post-state of the previous transition:
     // ∀e ∈ E : 􏰁 pre(e) = ⊥ = pred(E,eo,e)
     // ∨ pre(e) = post(pred(E, eo, e)) 􏰂
-    all e : E' | {
-        e.tr'.pre = Bottom
-        prd[E',eo,e] = Bottom
-    } or e.tr'.pre = prd[E',eo',e].tr.post
+    all e : E' | no (e.tr'.pre + prd[E',eo,e])  or (e.tr'.pre = prd[E',eo',e].tr.post)
 
 
     // (t4) A call transition may not follow another call transition unless there is a return transition in between them:
