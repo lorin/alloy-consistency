@@ -8,6 +8,17 @@ sig E {
     del : E,
 }
 
+fact NoOrphans {
+    all t : Tr | some tr.t
+    all r : R | some role.r
+    all m : Message | some snd.m
+    all o : Op | some op.o
+    all s : State | some (pre+post).s
+    all v : V | some rval.v
+    all p : P | some proc.p
+}
+
+
 // Transition
 // We use none to model ⊥
 
@@ -154,7 +165,10 @@ pred isWellFormedTrajectory[E': set E, eo':E->E, tr': E->Tr] {
     all e : E' | #{r : returns[E'] | r->e in eo'} =< #{c : calls[E'] | c->e in eo'}
 }
 
+// 7.3 (p87)
+// (c4) The events for each role are a trajectory:
 fact eventsForEachRoleAreWellFormedTrajectories { 
+    // ∀r ∈ R : G|E(r),eo,tr ∈ T
     all r : R | let E'=role.r
               | let eo'=E'<:eo:>E'
               | let tr'=E'<:tr {
@@ -164,16 +178,23 @@ fact eventsForEachRoleAreWellFormedTrajectories {
 }
 
 
+// 7.3 (p87)
+// (c5) del is a binary, injective relation that satisfies
+//
+//         del     eo
+// ∀s,r∈E: s−→r ⇒ s−→r ∧ rcv(r)∈snd(s)
 fact delConstraints {
     // injective
     no disj e1,e2 : E | e1.del=e2.del
 
-
+    //         del     eo
     // ∀s,r∈E: s−→r ⇒ s−→r ∧ rcv(r)∈snd(s)
-
-    // We can't define this until we define snd and rcv
-    // all s,r : E | s->r in del => {s->r in eo  rcv(r) in snd(s)
+    all s,r : E | s->r in del => {
+        some tr.rcv[r] // some message is received
+        s->r in eo
+        tr.rcv[r] in tr.snd[s]
+    }
 
 }
 
-run {}
+run {some E}
