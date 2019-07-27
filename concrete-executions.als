@@ -141,25 +141,28 @@ pred isTrajectory[E' : set E, eo' : E->E, tr': E->Tr] {
     // ∨ pre(e) = post(pred(E, eo, e)) 􏰂
     all e : E' | no (e.tr'.pre + prd[E',eo,e])  or (e.tr'.pre = prd[E',eo',e].tr.post)
 
-
     // (t4) A call transition may not follow another call transition unless there is a return transition in between them:
     // ∀c1, c2 ∈ calls(E) : c1 <eo c2 ⇒
     // ∃r ∈ returns(E) : c1 ≤eo r <eo c2
     all disj c1,c2 : calls[E'] | c1->c2 in eo' => some r : returns[E'] | {c1->r in eo'  r->c2 in eo'}
 }
 
-// TODO: implement this and check that all trajectories are well-formed
-//pred isWellFormedTrajectory[E': set E, eo':E->E, tr': E->Tr] {
-// p86
-// Definition 7.4 (Well-formed Trajectories). A trajectory (E,eo,tr) is well-formed if each event is preceded by no more returns than calls:
-// ∀e∈E:􏰈􏰈{r∈returns(E)|r≤eo e}􏰈􏰈≤􏰈􏰈{c∈calls(E)|c≤eo e}􏰈􏰈
-//}
-
-
-fact eventsForEachRoleAreTrajectories { 
-    all r : R | let E'=role.r |
-        isTrajectory[E', E'<:eo:>E', E'<:tr]
+pred isWellFormedTrajectory[E': set E, eo':E->E, tr': E->Tr] {
+    // p86
+    // Definition 7.4 (Well-formed Trajectories). A trajectory (E,eo,tr) is well-formed if each event is preceded by no more returns than calls:
+    // ∀e∈E:􏰈􏰈{r∈returns(E)|r≤eo e}􏰈􏰈≤􏰈􏰈{c∈calls(E)|c≤eo e}􏰈􏰈
+    all e : E' | #{r : returns[E'] | r->e in eo'} =< #{c : calls[E'] | c->e in eo'}
 }
+
+fact eventsForEachRoleAreWellFormedTrajectories { 
+    all r : R | let E'=role.r
+              | let eo'=E'<:eo:>E'
+              | let tr'=E'<:tr {
+        isTrajectory[E', eo', tr']
+        isWellFormedTrajectory[E', eo', tr']
+    }
+}
+
 
 fact delConstraints {
     // injective
