@@ -5,7 +5,7 @@ sig E {
     eo: set E,
     tr: Tr,
     role: R,
-    del : E,
+    del : lone E,
 }
 
 fact NoOrphans {
@@ -123,6 +123,7 @@ pred isEnumeration[es: E, r:E->E] {
 fact eoIsEnumeration { 
     isEnumeration[E,eo]
 }
+
 
 
 // predecessor
