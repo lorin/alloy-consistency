@@ -167,13 +167,19 @@ pred isWellFormedTrajectory[E': set E, eo':E->E, tr': E->Tr] {
 }
 
 // 7.3 (p87)
-// (c4) The events for each role are a trajectory:
+// (c4) The events for each role are a trajectory
 fact eventsForEachRoleAreWellFormedTrajectories { 
     // ∀r ∈ R : G|E(r),eo,tr ∈ T
     all r : R | let E'=role.r
               | let eo'=E'<:eo:>E'
               | let tr'=E'<:tr {
         isTrajectory[E', eo', tr']
+
+// 7.3.2 p89
+// Definition 7.8 (Well-formed Executions).
+// A concrete execution G = (E, eo, tr, role, del) is well-formed if
+// all its trajectories traj(G, r) are well-formed.
+// We define Ewellformed to be the set of well-formed executions.
         isWellFormedTrajectory[E', eo', tr']
     }
 }
@@ -195,7 +201,6 @@ fact delConstraints {
         s->r in eo
         tr.rcv[r] in tr.snd[s]
     }
-
 }
 
 run {some E}
